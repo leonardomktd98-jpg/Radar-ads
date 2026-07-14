@@ -131,6 +131,10 @@ function render() {
         openDetail(row.lib.id);
       }
     });
+    node.querySelector(".card__remove").addEventListener("click", (e) => {
+      e.stopPropagation();
+      removeLibrary(row.lib.id, row.lib.name);
+    });
     grid.appendChild(node);
   }
 
@@ -452,6 +456,17 @@ function bindGlobalUI() {
     }
   });
 
+  document.getElementById("addBtn").addEventListener("click", openAddModal);
+  document.getElementById("addModalScrim").addEventListener("click", closeAddModal);
+  document.getElementById("addModalClose").addEventListener("click", closeAddModal);
+  document.getElementById("tokenSave").addEventListener("click", saveTokenStep);
+  document.getElementById("changeTokenLink").addEventListener("click", () => showAddStep("token"));
+  document.getElementById("addForm").addEventListener("submit", submitAddForm);
+  document.getElementById("addAnother").addEventListener("click", () => showAddStep("form"));
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !document.getElementById("addModal").hidden) closeAddModal();
+  });
+
   initTheme();
   document.getElementById("themeToggle").addEventListener("click", toggleTheme);
 }
@@ -469,6 +484,214 @@ function toggleTheme() {
   document.documentElement.setAttribute("data-theme", next);
   localStorage.setItem("ads-tracker-theme", next);
   if (state.activeLibId) renderDetail();
+}
+
+/* ---------------- Salvar direto no GitHub (sem terminal, sem git) ---------------- */
+// O dashboard escreve em docs/data/libraries.json via GitHub Contents API,
+// usando um token pessoal que o usuário cola uma vez e fica só no localStorage
+// deste navegador. Isso já dispara o workflow (ele roda em todo push nesse
+// arquivo), então a contagem chega sozinha em ~1 minuto.
+
+const TOKEN_KEY = "ads-tracker-gh-token";
+const LIB_PATH = "docs/data/libraries.json";
+const HIST_PATH = "docs/data/history.json";
+
+function getToken() {
+  return localStorage.getItem(TOKEN_KEY) || "";
+}
+function setToken(token) {
+  localStorage.setItem(TOKEN_KEY, token);
+}
+function clearToken() {
+  localStorage.removeItem(TOKEN_KEY);
+}
+
+function utf8ToBase64(str) {
+  const bytes = new TextEncoder().encode(str);
+  let binary = "";
+  bytes.forEach((b) => (binary += String.fromCharCode(b)));
+  return btoa(binary);
+}
+function base64ToUtf8(b64) {
+  const binary = atob(b64.replace(/\n/g, ""));
+  const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+
+async function ghErrorMessage(res) {
+  if (res.status === 401) return "Token inválido ou expirado. Clique em “Trocar token” e gere um novo.";
+  if (res.status === 403) return "Sem permissão de escrita. Confira se o token tem “Contents: Read and write” neste repositório.";
+  if (res.status === 404) return "Repositório ou arquivo não encontrado. Confira a constante REPO em docs/app.js e se o token tem acesso a este repositório.";
+  try {
+    const body = await res.json();
+    if (body.message) return `Erro do GitHub: ${body.message}`;
+  } catch {
+    /* resposta sem corpo JSON */
+  }
+  return `Erro inesperado do GitHub (${res.status}).`;
+}
+
+async function ghGetFile(path) {
+  const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
+    headers: { Authorization: `Bearer ${getToken()}`, Accept: "application/vnd.github+json" },
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(await ghErrorMessage(res));
+  const json = await res.json();
+  return { sha: json.sha, data: JSON.parse(base64ToUtf8(json.content)) };
+}
+
+async function ghPutFile(path, dataObj, sha, message) {
+  const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+      Accept: "application/vnd.github+json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      message,
+      content: utf8ToBase64(JSON.stringify(dataObj, null, 2) + "\n"),
+      sha,
+      branch: "main",
+    }),
+  });
+  if (!res.ok) throw new Error(await ghErrorMessage(res));
+  return res.json();
+}
+
+function slugify(str) {
+  return str
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+function extractPageId(rawUrl) {
+  try {
+    return new URL(rawUrl).searchParams.get("view_all_page_id");
+  } catch {
+    return null;
+  }
+}
+
+function uniqueSlug(name, libraries) {
+  const base = slugify(name) || "anunciante";
+  const existing = new Set(libraries.map((l) => l.id));
+  let id = base;
+  let suffix = 1;
+  while (existing.has(id)) {
+    suffix += 1;
+    id = `${base}-${suffix}`;
+  }
+  return id;
+}
+
+/* ---------------- Modal: Adicionar anunciante ---------------- */
+
+function openAddModal() {
+  const modal = document.getElementById("addModal");
+  modal.hidden = false;
+  modal.setAttribute("aria-hidden", "false");
+  document.getElementById("tokenRepoName").textContent = REPO;
+  if (getToken()) {
+    showAddStep("form");
+  } else {
+    showAddStep("token");
+  }
+}
+
+function closeAddModal() {
+  const modal = document.getElementById("addModal");
+  modal.hidden = true;
+  modal.setAttribute("aria-hidden", "true");
+}
+
+function showAddStep(step) {
+  document.getElementById("tokenStep").hidden = step !== "token";
+  document.getElementById("addForm").hidden = step !== "form";
+  document.getElementById("addSuccess").hidden = step !== "success";
+  document.getElementById("tokenError").hidden = true;
+  document.getElementById("addError").hidden = true;
+  if (step === "token") document.getElementById("tokenInput").focus();
+  if (step === "form") document.getElementById("addName").focus();
+}
+
+function saveTokenStep() {
+  const input = document.getElementById("tokenInput");
+  const value = input.value.trim();
+  const errEl = document.getElementById("tokenError");
+  if (!value) {
+    errEl.textContent = "Cole o token gerado no GitHub antes de continuar.";
+    errEl.hidden = false;
+    return;
+  }
+  setToken(value);
+  input.value = "";
+  showAddStep("form");
+}
+
+async function submitAddForm(e) {
+  e.preventDefault();
+  const name = document.getElementById("addName").value.trim();
+  const url = document.getElementById("addUrl").value.trim();
+  const errEl = document.getElementById("addError");
+  const submitBtn = document.getElementById("addSubmit");
+  errEl.hidden = true;
+  if (!name || !url) return;
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Salvando…";
+  try {
+    const { sha, data: libraries } = await ghGetFile(LIB_PATH);
+    const id = uniqueSlug(name, libraries);
+    const pageId = extractPageId(url);
+    libraries.push({ id, name, url, pageId });
+    await ghPutFile(LIB_PATH, libraries, sha, `add: ${name}`);
+
+    state.libraries = libraries;
+    document.getElementById("addForm").reset();
+    showAddStep("success");
+    render();
+  } catch (err) {
+    if (String(err.message).includes("Token inválido")) {
+      showAddStep("token");
+      document.getElementById("tokenError").textContent = err.message;
+      document.getElementById("tokenError").hidden = false;
+    } else {
+      errEl.textContent = err.message;
+      errEl.hidden = false;
+    }
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Adicionar";
+  }
+}
+
+async function removeLibrary(id, name) {
+  if (!confirm(`Remover "${name}" do rastreamento? O histórico já coletado também será apagado.`)) return;
+  if (!getToken()) {
+    openAddModal();
+    return;
+  }
+  try {
+    const { sha: libSha, data: libraries } = await ghGetFile(LIB_PATH);
+    const nextLibraries = libraries.filter((l) => l.id !== id);
+    await ghPutFile(LIB_PATH, nextLibraries, libSha, `remove: ${name}`);
+    state.libraries = nextLibraries;
+
+    const { sha: histSha, data: history } = await ghGetFile(HIST_PATH);
+    if (history[id]) {
+      delete history[id];
+      await ghPutFile(HIST_PATH, history, histSha, `chore: limpar histórico de ${name}`);
+      state.history = history;
+    }
+    render();
+  } catch (err) {
+    alert(`Não consegui remover: ${err.message}`);
+  }
 }
 
 /* ---------------- Formatação ---------------- */
