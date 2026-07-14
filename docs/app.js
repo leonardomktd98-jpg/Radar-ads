@@ -460,6 +460,12 @@ function bindGlobalUI() {
   document.getElementById("addModalScrim").addEventListener("click", closeAddModal);
   document.getElementById("addModalClose").addEventListener("click", closeAddModal);
   document.getElementById("tokenSave").addEventListener("click", saveTokenStep);
+  document.getElementById("tokenInput").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      saveTokenStep();
+    }
+  });
   document.getElementById("changeTokenLink").addEventListener("click", () => showAddStep("token"));
   document.getElementById("addForm").addEventListener("submit", submitAddForm);
   document.getElementById("addAnother").addEventListener("click", () => showAddStep("form"));
