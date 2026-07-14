@@ -5,6 +5,7 @@
   "type": "module",
   "description": "Rastreador automático de anúncios da Meta Ads Library para mineração de produtos.",
   "scripts": {
+    "dev": "node scraper/dev-server.js",
     "scrape": "node scraper/scrape.js",
     "add": "node scraper/add-library.js"
   },
