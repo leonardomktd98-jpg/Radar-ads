@@ -1,1 +1,8 @@
-[]
+[
+  {
+    "id": "https-www-facebook-com-ads-library-active-status-active-ad-type-all-country-br-is-targeted-country-false-media-type-all-search-type-page-sort-data-direction-desc-sort-data-mode-total-impressions-view-all-page-id-428914176964425",
+    "name": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=BR&is_targeted_country=false&media_type=all&search_type=page&sort_data[direction]=desc&sort_data[mode]=total_impressions&view_all_page_id=428914176964425",
+    "url": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=BR&is_targeted_country=false&media_type=all&search_type=page&sort_data[direction]=desc&sort_data[mode]=total_impressions&view_all_page_id=428914176964425",
+    "pageId": "428914176964425"
+  }
+]
