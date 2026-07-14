@@ -1,12 +1,12 @@
 // Servidor estático mínimo (sem dependências externas) para rodar o dashboard
-// localmente: npm run dev. Serve a pasta site/ em http://localhost:5173.
+// localmente: npm run dev. Serve a pasta docs/ em http://localhost:5173.
 
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "site");
+const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "docs");
 const PORT = process.env.PORT || 5173;
 
 const MIME = {
@@ -23,7 +23,7 @@ const server = http.createServer((req, res) => {
   const urlPath = decodeURIComponent(req.url.split("?")[0]);
   let filePath = path.join(ROOT, urlPath === "/" ? "index.html" : urlPath);
 
-  // Impede escapar da pasta site/ via "..".
+  // Impede escapar da pasta docs/ via "..".
   if (!filePath.startsWith(ROOT)) {
     res.writeHead(403);
     res.end("Forbidden");

@@ -1,14 +1,14 @@
-// Lê site/data/libraries.json, visita cada link da Ads Library com um navegador
+// Lê docs/data/libraries.json, visita cada link da Ads Library com um navegador
 // headless, extrai o número de anúncios exibido pela Meta e acumula o histórico
-// em site/data/history.json. Pensado para rodar via GitHub Actions (cron) ou
+// em docs/data/history.json. Pensado para rodar via GitHub Actions (cron) ou
 // manualmente com `npm run scrape`.
 
 import { chromium } from "playwright";
 import fs from "fs";
 import path from "path";
 
-const LIBRARIES_PATH = path.join("site", "data", "libraries.json");
-const HISTORY_PATH = path.join("site", "data", "history.json");
+const LIBRARIES_PATH = path.join("docs", "data", "libraries.json");
+const HISTORY_PATH = path.join("docs", "data", "history.json");
 
 const RESULTS_TEXT_RE = /(mais de|more than)?\s*[~≈]?\s*([\d.,]+)\s*(resultados?|results?)/i;
 
@@ -65,7 +65,7 @@ async function main() {
   const history = readJson(HISTORY_PATH, {});
 
   if (libraries.length === 0) {
-    console.log("Nenhuma biblioteca cadastrada em site/data/libraries.json ainda. Nada a fazer.");
+    console.log("Nenhuma biblioteca cadastrada em docs/data/libraries.json ainda. Nada a fazer.");
     fs.writeFileSync(HISTORY_PATH, JSON.stringify(history, null, 2) + "\n");
     return;
   }

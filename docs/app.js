@@ -1,4 +1,4 @@
-// Dashboard estático: lê site/data/libraries.json + site/data/history.json
+// Dashboard estático: lê docs/data/libraries.json + docs/data/history.json
 // (atualizados pelo workflow do GitHub Actions) e renderiza cards, deltas e
 // gráficos. Não faz nenhuma chamada de rede além desses dois arquivos locais.
 
@@ -448,7 +448,7 @@ function bindGlobalUI() {
   document.getElementById("updateLink").addEventListener("click", (e) => {
     if (REPO === "SEU-USUARIO/SEU-REPOSITORIO") {
       e.preventDefault();
-      alert('Configure a constante REPO em site/app.js com "usuario/repositorio" para habilitar este atalho.');
+      alert('Configure a constante REPO em docs/app.js com "usuario/repositorio" para habilitar este atalho.');
     }
   });
 

@@ -4,7 +4,7 @@
 import fs from "fs";
 import path from "path";
 
-const LIBRARIES_PATH = path.join("site", "data", "libraries.json");
+const LIBRARIES_PATH = path.join("docs", "data", "libraries.json");
 
 const [, , name, url] = process.argv;
 
@@ -64,5 +64,5 @@ fs.mkdirSync(path.dirname(LIBRARIES_PATH), { recursive: true });
 fs.writeFileSync(LIBRARIES_PATH, JSON.stringify(libraries, null, 2) + "\n");
 
 console.log(`Adicionado "${name}" (id: ${id}).`);
-console.log('Agora faça: git add site/data/libraries.json && git commit -m "add: nova biblioteca" && git push');
+console.log('Agora faça: git add docs/data/libraries.json && git commit -m "add: nova biblioteca" && git push');
 console.log("O workflow do GitHub Actions vai buscar a contagem automaticamente no próximo agendamento (ou dispare manualmente pela aba Actions).");

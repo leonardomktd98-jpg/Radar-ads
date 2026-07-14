@@ -11,17 +11,17 @@ gráficos por anunciante.
 você roda "npm run add" com o link da Ads Library
         │
         ▼
-site/data/libraries.json  (lista de anunciantes que você quer rastrear)
+docs/data/libraries.json  (lista de anunciantes que você quer rastrear)
         │
         ▼
 GitHub Actions roda todo dia (cron) + sob demanda (botão "Run workflow")
         │  abre cada link com um navegador headless (Playwright)
         │  lê o texto "~X resultados" que a Meta mostra
         ▼
-site/data/history.json  (histórico diário de contagem, por anunciante)
+docs/data/history.json  (histórico diário de contagem, por anunciante)
         │
         ▼
-GitHub Pages serve site/  →  dashboard lê os dois JSONs e desenha os gráficos
+GitHub Pages serve docs/  →  dashboard lê os dois JSONs e desenha os gráficos
 ```
 
 Não existe backend nem banco de dados — os dados moram no próprio repositório
@@ -56,7 +56,7 @@ como JSON, versionados no Git. Isso também te dá histórico automático "de gr
 ```bash
 npm install
 npx playwright install --with-deps chromium
-npm run scrape   # lê site/data/libraries.json e atualiza site/data/history.json
+npm run scrape   # lê docs/data/libraries.json e atualiza docs/data/history.json
 npm run dev      # sobe o dashboard em http://localhost:5173
 ```
 
@@ -66,7 +66,7 @@ Pegue o link da Ads Library **de um anunciante específico** (com
 ```bash
 npm run add -- "Nome do produto" "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=BR&view_all_page_id=123456789"
 ```
-Isso adiciona a entrada em `site/data/libraries.json`. Faça commit e push — o
+Isso adiciona a entrada em `docs/data/libraries.json`. Faça commit e push — o
 resto é automático a partir daqui.
 
 ### 4. Publicar no GitHub
@@ -82,11 +82,13 @@ commitar o `history.json` atualizado.
 
 ### 6. Habilitar o GitHub Pages
 **Settings → Pages → Source** → escolha **"Deploy from a branch"**, branch
-`main`, pasta **`/site`**. Em 1–2 minutos seu dashboard fica disponível em
+`main`, pasta **`/docs`** (o dropdown do GitHub só permite `/ (root)` ou
+`/docs` — por isso o dashboard mora em `docs/` e não em `site/`). Em 1–2
+minutos seu dashboard fica disponível em
 `https://leonardomktd98-jpg.github.io/Radar-ads/`.
 
 ### 7. Botão "Atualizar agora"
-Já configurado em [site/app.js](site/app.js) (`REPO = "leonardomktd98-jpg/Radar-ads"`).
+Já configurado em [docs/app.js](docs/app.js) (`REPO = "leonardomktd98-jpg/Radar-ads"`).
 Ele leva direto para a aba Actions, onde clicando em **"Run workflow"** você
 força uma atualização imediata de todas as bibliotecas cadastradas (sem
 esperar o horário do cron).
@@ -111,12 +113,13 @@ preferir (formato cron, sempre em UTC).
 
 ## Estrutura do projeto
 ```
-site/                    → o dashboard (isso é o que vira o GitHub Pages)
+docs/                    → o dashboard (isso é o que vira o GitHub Pages)
   index.html, style.css, app.js
   data/libraries.json    → anunciantes cadastrados (você edita via npm run add)
   data/history.json      → histórico diário de contagem (o scraper escreve)
 scraper/
   scrape.js              → visita cada biblioteca e atualiza o histórico
   add-library.js         → CLI para cadastrar uma nova biblioteca
+  dev-server.js          → servidor local para "npm run dev"
 .github/workflows/update.yml → roda o scraper por cron + sob demanda
 ```
