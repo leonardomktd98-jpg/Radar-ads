@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mineração de Anúncios — Ads Library Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body class="viz-root">
+  <div class="page">
+    <header class="app-header">
+      <div class="app-header__titles">
+        <h1>Mineração de Anúncios</h1>
+        <p class="app-header__subtitle">
+          Acompanhamento automático do número de anúncios ativos por anunciante na Meta Ads Library.
+        </p>
+      </div>
+      <div class="app-header__actions">
+        <span class="last-sync" id="lastSync">Carregando…</span>
+        <a class="btn btn--ghost" id="updateLink" href="#" target="_blank" rel="noopener">
+          <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M4 10a6 6 0 0 1 10.2-4.3M16 10a6 6 0 0 1-10.2 4.3M14.2 4v3.5H10.7M5.8 16v-3.5H9.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Atualizar agora
+        </a>
+        <button class="btn btn--icon" id="themeToggle" type="button" aria-label="Alternar tema claro/escuro" title="Alternar tema">
+          <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M10 2v2M10 16v2M4.2 4.2l1.4 1.4M14.4 14.4l1.4 1.4M2 10h2M16 10h2M4.2 15.8l1.4-1.4M14.4 5.6l1.4-1.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="10" r="3.6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <section class="controls" aria-label="Filtros">
+      <input id="searchInput" class="search-input" type="search" placeholder="Buscar anunciante…" />
+      <select id="sortSelect" class="sort-select" aria-label="Ordenar por">
+        <option value="name">Ordenar: Nome (A–Z)</option>
+        <option value="count-desc">Ordenar: Mais anúncios</option>
+        <option value="delta-day-desc">Ordenar: Maior alta (dia)</option>
+        <option value="delta-day-asc">Ordenar: Maior queda (dia)</option>
+        <option value="delta-week-desc">Ordenar: Maior alta (semana)</option>
+      </select>
+    </section>
+
+    <main>
+      <div id="emptyState" class="empty-state" hidden>
+        <h2>Nenhuma biblioteca cadastrada ainda</h2>
+        <p>
+          Adicione um link da Meta Ads Library com:<br />
+          <code>npm run add -- "Nome do produto" "https://www.facebook.com/ads/library/?...&amp;view_all_page_id=..."</code>
+        </p>
+        <p>Depois faça commit e push — a próxima atualização automática já traz os primeiros números.</p>
+      </div>
+
+      <div id="cardsGrid" class="cards-grid" role="list"></div>
+    </main>
+
+    <aside id="detailPanel" class="detail-panel" hidden aria-hidden="true">
+      <div class="detail-panel__scrim" id="detailScrim"></div>
+      <div class="detail-panel__sheet" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+        <div class="detail-panel__header">
+          <div>
+            <h2 id="detailTitle">—</h2>
+            <a id="detailLink" href="#" target="_blank" rel="noopener" class="detail-panel__link">Ver na Ads Library ↗</a>
+          </div>
+          <button class="btn btn--icon" id="detailClose" type="button" aria-label="Fechar">
+            <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+
+        <div class="detail-panel__stats" id="detailStats"></div>
+
+        <div class="detail-panel__toolbar">
+          <div class="range-tabs" id="rangeTabs">
+            <button type="button" data-range="14" class="range-tab">14d</button>
+            <button type="button" data-range="30" class="range-tab is-active">30d</button>
+            <button type="button" data-range="90" class="range-tab">90d</button>
+            <button type="button" data-range="all" class="range-tab">Tudo</button>
+          </div>
+          <button type="button" class="btn btn--ghost btn--small" id="tableToggle">Ver como tabela</button>
+        </div>
+
+        <div class="detail-panel__chart-wrap">
+          <canvas id="detailChart" height="260"></canvas>
+          <div id="detailTable" class="table-view" hidden></div>
+        </div>
+      </div>
+    </aside>
+
+    <footer class="app-footer">
+      <p>
+        Dados obtidos diretamente da Meta Ads Library. Contagens marcadas como “aprox.” são
+        arredondadas pela própria Meta quando o total é muito alto.
+      </p>
+    </footer>
+  </div>
+
+  <template id="cardTemplate">
+    <article class="card" role="listitem" tabindex="0">
+      <div class="card__top">
+        <h3 class="card__name"></h3>
+        <span class="badge badge--error" hidden>Erro na última coleta</span>
+      </div>
+      <div class="card__hero">
+        <span class="card__count">—</span>
+        <span class="card__unit">anúncios ativos</span>
+      </div>
+      <span class="card__approx" hidden>~ valor aproximado (conforme exibido pela Meta)</span>
+      <ul class="card__deltas">
+        <li class="delta" data-delta="day"><span class="delta__arrow"></span><span class="delta__text"></span><span class="delta__label">desde ontem</span></li>
+        <li class="delta" data-delta="week"><span class="delta__arrow"></span><span class="delta__text"></span><span class="delta__label">últimos 7 dias</span></li>
+        <li class="delta" data-delta="month"><span class="delta__arrow"></span><span class="delta__text"></span><span class="delta__label">últimos 30 dias</span></li>
+      </ul>
+      <svg class="card__sparkline" viewBox="0 0 240 48" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <div class="card__footer">
+        <span class="card__updated"></span>
+      </div>
+    </article>
+  </template>
+</body>
+</html>

@@ -1,0 +1,54 @@
+name: Atualizar biblioteca de anúncios
+
+on:
+  schedule:
+    # 12:00 UTC = 09:00 em Brasília (horário padrão, sem horário de verão).
+    # Ajuste o horário aqui se quiser rodar em outro momento do dia.
+    - cron: "0 12 * * *"
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths:
+      - "site/data/libraries.json"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ads-tracker-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Instalar navegador (Chromium)
+        run: npx playwright install --with-deps chromium
+
+      - name: Rodar scraper
+        run: npm run scrape
+
+      - name: Commit e push do histórico atualizado
+        run: |
+          git config user.name "ads-tracker-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add site/data/history.json
+          if git diff --cached --quiet; then
+            echo "Nada mudou, nenhum commit necessário."
+          else
+            git commit -m "chore: atualizar contagem de anúncios [skip ci]"
+            git push
+          fi
