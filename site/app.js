@@ -3,7 +3,7 @@
 // gráficos. Não faz nenhuma chamada de rede além desses dois arquivos locais.
 
 // >>> Depois de publicar no GitHub, troque pelo seu "usuario/repositorio" <<<
-const REPO = "SEU-USUARIO/SEU-REPOSITORIO";
+const REPO = "leonardomktd98-jpg/Radar-ads";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 

@@ -57,9 +57,8 @@ como JSON, versionados no Git. Isso também te dá histórico automático "de gr
 npm install
 npx playwright install --with-deps chromium
 npm run scrape   # lê site/data/libraries.json e atualiza site/data/history.json
+npm run dev      # sobe o dashboard em http://localhost:5173
 ```
-Para ver o dashboard localmente, sirva a pasta `site/` com qualquer servidor
-estático, por exemplo `npx serve site` ou `python -m http.server --directory site`.
 
 ### 3. Adicionar uma biblioteca de anúncios
 Pegue o link da Ads Library **de um anunciante específico** (com
@@ -71,9 +70,8 @@ Isso adiciona a entrada em `site/data/libraries.json`. Faça commit e push — o
 resto é automático a partir daqui.
 
 ### 4. Publicar no GitHub
+Já conectado a [leonardomktd98-jpg/Radar-ads](https://github.com/leonardomktd98-jpg/Radar-ads):
 ```bash
-git remote add origin https://github.com/SEU-USUARIO/SEU-REPOSITORIO.git
-git branch -M main
 git push -u origin main
 ```
 
@@ -85,16 +83,13 @@ commitar o `history.json` atualizado.
 ### 6. Habilitar o GitHub Pages
 **Settings → Pages → Source** → escolha **"Deploy from a branch"**, branch
 `main`, pasta **`/site`**. Em 1–2 minutos seu dashboard fica disponível em
-`https://SEU-USUARIO.github.io/SEU-REPOSITORIO/`.
+`https://leonardomktd98-jpg.github.io/Radar-ads/`.
 
-### 7. Conectar o botão "Atualizar agora"
-Abra [site/app.js](site/app.js) e troque a linha:
-```js
-const REPO = "SEU-USUARIO/SEU-REPOSITORIO";
-```
-pelo seu usuário/repositório reais. Isso faz o botão levar direto para a aba
-Actions, onde clicando em **"Run workflow"** você força uma atualização
-imediata de todas as bibliotecas cadastradas (sem esperar o horário do cron).
+### 7. Botão "Atualizar agora"
+Já configurado em [site/app.js](site/app.js) (`REPO = "leonardomktd98-jpg/Radar-ads"`).
+Ele leva direto para a aba Actions, onde clicando em **"Run workflow"** você
+força uma atualização imediata de todas as bibliotecas cadastradas (sem
+esperar o horário do cron).
 
 ### 8. Ajustar o horário da atualização automática
 Em [.github/workflows/update.yml](.github/workflows/update.yml), a linha
