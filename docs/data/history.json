@@ -74,11 +74,14 @@
         "timestamp": "2026-07-26T12:54:57.457Z",
         "count": 48,
         "approx": true
+      },
+      {
+        "date": "2026-07-28",
+        "timestamp": "2026-07-28T13:36:03.230Z",
+        "count": 37,
+        "approx": true
       }
     ],
-    "lastError": {
-      "message": "Não consegui interpretar o texto de resultados: \"Remova ou ajuste os filtros que você aplicou para obter resultados diferentes.\"",
-      "timestamp": "2026-07-27T14:08:30.591Z"
-    }
+    "lastError": null
   }
 }
