@@ -122,11 +122,14 @@
         "timestamp": "2026-08-05T13:39:29.298Z",
         "count": 39,
         "approx": true
+      },
+      {
+        "date": "2026-08-07",
+        "timestamp": "2026-08-07T12:37:28.487Z",
+        "count": 25,
+        "approx": true
       }
     ],
-    "lastError": {
-      "message": "Não consegui interpretar o texto de resultados: \"Remova ou ajuste os filtros que você aplicou para obter resultados diferentes.\"",
-      "timestamp": "2026-08-06T13:38:25.400Z"
-    }
+    "lastError": null
   }
 }
