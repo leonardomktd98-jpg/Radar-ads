@@ -200,6 +200,12 @@
         "timestamp": "2026-08-20T12:23:11.152Z",
         "count": 55,
         "approx": true
+      },
+      {
+        "date": "2026-08-21",
+        "timestamp": "2026-08-21T12:22:27.053Z",
+        "count": 50,
+        "approx": true
       }
     ],
     "lastError": null
