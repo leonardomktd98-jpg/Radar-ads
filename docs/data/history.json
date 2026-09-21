@@ -380,6 +380,12 @@
         "timestamp": "2026-09-20T15:02:14.448Z",
         "count": 17,
         "approx": true
+      },
+      {
+        "date": "2026-09-21",
+        "timestamp": "2026-09-21T17:20:00.889Z",
+        "count": 16,
+        "approx": true
       }
     ],
     "lastError": null
