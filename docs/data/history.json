@@ -442,6 +442,9 @@
         "approx": true
       }
     ],
-    "lastError": null
+    "lastError": {
+      "message": "Não consegui interpretar o texto de resultados: \"Remova ou ajuste os filtros que você aplicou para obter resultados diferentes.\"",
+      "timestamp": "2026-10-01T17:39:06.594Z"
+    }
   }
 }
