@@ -590,6 +590,12 @@
         "timestamp": "2026-10-27T16:58:30.611Z",
         "count": 110,
         "approx": true
+      },
+      {
+        "date": "2026-10-28",
+        "timestamp": "2026-10-28T17:33:47.738Z",
+        "count": 130,
+        "approx": true
       }
     ],
     "lastError": null
