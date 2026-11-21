@@ -736,6 +736,9 @@
         "approx": true
       }
     ],
-    "lastError": null
+    "lastError": {
+      "message": "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByText(/resultados?|results?/i).first() to be visible\n",
+      "timestamp": "2026-11-21T18:24:38.985Z"
+    }
   }
 }
