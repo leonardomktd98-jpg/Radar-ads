@@ -734,11 +734,14 @@
         "timestamp": "2026-11-20T19:21:57.152Z",
         "count": 100,
         "approx": true
+      },
+      {
+        "date": "2026-11-22",
+        "timestamp": "2026-11-22T18:47:42.435Z",
+        "count": 100,
+        "approx": true
       }
     ],
-    "lastError": {
-      "message": "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByText(/resultados?|results?/i).first() to be visible\n",
-      "timestamp": "2026-11-21T18:24:38.985Z"
-    }
+    "lastError": null
   }
 }
