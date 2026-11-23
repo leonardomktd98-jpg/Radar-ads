@@ -740,6 +740,12 @@
         "timestamp": "2026-11-22T18:47:42.435Z",
         "count": 100,
         "approx": true
+      },
+      {
+        "date": "2026-11-23",
+        "timestamp": "2026-11-23T23:00:20.421Z",
+        "count": 99,
+        "approx": true
       }
     ],
     "lastError": null
