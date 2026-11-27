@@ -764,6 +764,12 @@
         "timestamp": "2026-11-26T20:40:21.601Z",
         "count": 110,
         "approx": true
+      },
+      {
+        "date": "2026-11-27",
+        "timestamp": "2026-11-27T20:26:03.403Z",
+        "count": 100,
+        "approx": true
       }
     ],
     "lastError": null
